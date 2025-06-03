@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chat com Amor</title>
   <style>
     body {
@@ -34,15 +34,40 @@
       font-weight: bold;
     }
 
+    .contatos {
+      padding: 10px;
+      background: #f9f9f9;
+      border-bottom: 1px solid #ccc;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .contato {
+      cursor: pointer;
+      padding: 6px 10px;
+      border-bottom: 1px solid #eee;
+    }
+
     .chat {
       flex: 1;
       padding: 10px;
       overflow-y: auto;
       background: #f3f3f3;
+      position: relative;
     }
 
     .message {
       margin-bottom: 10px;
+    }
+
+    .msg-text {
+      background: #fff;
+      padding: 10px 14px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      max-width: 80%;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
     .input-area {
@@ -71,17 +96,46 @@
       font-size: 18px;
       cursor: pointer;
     }
+
+    .adicionar-contato {
+      display: flex;
+      padding: 10px;
+      gap: 5px;
+      background: #f9f9f9;
+    }
+
+    .adicionar-contato input {
+      flex: 1;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      padding: 6px;
+    }
+
+    .adicionar-contato button {
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: #ff4d6d;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-
   <div class="phone">
-    <div class="header">
-      Chat com Amor 💬
+    <div class="header">Chat com Amor 💬</div>
+
+    <div class="adicionar-contato">
+      <input type="text" id="novoContato" placeholder="Adicionar contato..." />
+      <button onclick="adicionarContato(document.getElementById('novoContato').value)">+</button>
+    </div>
+
+    <div class="contatos" id="listaContatos">
+      <!-- Contatos renderizados aqui -->
     </div>
 
     <div class="chat" id="chat">
-      <!-- Mensagens aqui -->
+      <!-- Mensagens renderizadas aqui -->
     </div>
 
     <div class="input-area">
@@ -89,7 +143,6 @@
       <button onclick="enviarMensagem()">➤</button>
     </div>
   </div>
-
-  <script src="script-chat.js"></script>
+  <script type="module" src="script-chat.js"></script>
 </body>
 </html>
