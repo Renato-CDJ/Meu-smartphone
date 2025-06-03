@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contatos</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+    .phone {
+      width: 375px;
+      height: 667px;
+      background: #fff;
+      border: 12px solid #000;
+      border-radius: 40px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      background: #ff4d6d;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-weight: bold;
+    }
+    .contato-container {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+    .contato-container input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+    .contato-container button {
+      padding: 10px;
+      background: #ff4d6d;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .contato-lista {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .contato-item {
+      padding: 10px;
+      border-radius: 10px;
+      background: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="status-bar">
+      <span>Contatos</span>
+      <button onclick="window.location.href='home.html'">⬅️</button>
+    </div>
+
+
+    <div class="header">Contatos</div>
+    <div class="contato-container">
+      <input type="text" id="nomeContato" placeholder="Usuário para adicionar" />
+      <button onclick="adicionarContato()">Adicionar Contato</button>
+      <div class="contato-lista" id="listaContatos"></div>
+    </div>
+  </div>
+
+  
+
+  <script>
+    function carregarContatos() {
+      const user = localStorage.getItem("usuario");
+      const todosContatos = JSON.parse(localStorage.getItem("contatos") || "{}");
+      const lista = todosContatos[user] || [];
+      const container = document.getElementById("listaContatos");
+      container.innerHTML = "";
+      lista.forEach(nome => {
+        const div = document.createElement("div");
+        div.className = "contato-item";
+        div.textContent = nome;
+        container.appendChild(div);
+      });
+    }
+
+    function adicionarContato() {
+      const nome = document.getElementById("nomeContato").value.trim();
+      const user = localStorage.getItem("usuario");
+      if (!nome || !user) return;
+
+      const todosUsuarios = JSON.parse(localStorage.getItem("usuarios") || "{}");
+      if (!todosUsuarios[nome]) {
+        alert("Usuário não encontrado.");
+        return;
+      }
+
+      const todosContatos = JSON.parse(localStorage.getItem("contatos") || "{}");
+      if (!todosContatos[user]) todosContatos[user] = [];
+
+      if (!todosContatos[user].includes(nome)) {
+        todosContatos[user].push(nome);
+        localStorage.setItem("contatos", JSON.stringify(todosContatos));
+        carregarContatos();
+        document.getElementById("nomeContato").value = "";
+      }
+    }
+
+    carregarContatos();
+  </script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendário</title>
+  <style>
+    body {
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .phone {
+      width: 375px;
+      height: 667px;
+      background: #fefefe;
+      border: 12px solid #000;
+      border-radius: 40px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #fff0f5, #ffe4ec);
+    }
+
+    .header {
+      background-color: #ff4d6d;
+      padding: 14px;
+      color: white;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .calendar-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #fff8fb;
+      padding: 20px;
+    }
+
+    .calendar {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: #d6336c;
+    }
+
+    .calendar-days,
+    .calendar-dates {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+    }
+
+    .calendar-days div {
+      font-size: 0.9rem;
+      color: #999;
+      padding-bottom: 8px;
+    }
+
+    .calendar-dates div {
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .calendar-dates div:hover {
+      background: #ffc4d6;
+    }
+
+    .calendar-dates .active {
+      background: #ff4d6d;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <button onclick="window.location.href='home.html'">⬅️</button>
+    <div class="header">Calendário 📅</div>
+    <div class="calendar-container">
+      <div class="calendar">
+        <div class="calendar-header">
+          <span>&lt;</span>
+          <span>Junho 2025</span>
+          <span>&gt;</span>
+        </div>
+        <div class="calendar-days">
+          <div>Dom</div>
+          <div>Seg</div>
+          <div>Ter</div>
+          <div>Qua</div>
+          <div>Qui</div>
+          <div>Sex</div>
+          <div>Sab</div>
+        </div>
+        <div class="calendar-dates">
+          <div class="">26</div>
+          <div class="">27</div>
+          <div class="">28</div>
+          <div class="">29</div>
+          <div class="">30</div>
+          <div class="">31</div>
+          <div class="">1</div>
+          <div>2</div><div>3</div><div>4</div><div>5</div><div class="active">6</div>
+          <div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div>
+          <div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div>
+          <div>21</div><div>22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div>
+          <div>28</div><div>29</div><div>30</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

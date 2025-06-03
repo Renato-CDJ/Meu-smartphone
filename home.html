@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Início</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .phone {
+      width: 375px;
+      height: 667px;
+      background: #fff;
+      border-radius: 40px;
+      border: 12px solid #000;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .status-bar {
+      background: #eee;
+      padding: 5px 10px;
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .menu-top {
+      background: #ff4d6d;
+      color: white;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .menu-top span {
+      font-weight: bold;
+    }
+
+    .menu-top button {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .apps {
+      flex: 1;
+      background: #ffe0ec;
+      display: flex;
+      flex-wrap: wrap;
+      padding: 15px;
+      gap: 10px;
+      justify-content: center;
+      align-content: flex-start;
+    }
+
+    .app-icon {
+      width: 60px;
+      height: 60px;
+      background: white;
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      font-size: 12px;
+      color: #333;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .app-icon i {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    .menu-lateral {
+      position: absolute;
+      right: 0;
+      top: 60px;
+      background: #fff;
+      width: 160px;
+      border-radius: 8px 0 0 8px;
+      box-shadow: -2px 0 6px rgba(0,0,0,0.2);
+      display: none;
+      flex-direction: column;
+      padding: 10px;
+      z-index: 10;
+    }
+
+    .menu-lateral button {
+      background: none;
+      border: none;
+      padding: 10px;
+      text-align: left;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .tema-escuro {
+      background: #1e1e2f;
+      color: white;
+    }
+
+    .tema-escuro .apps {
+      background: #2a2a40;
+    }
+
+    .tema-escuro .app-icon {
+      background: #444;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone" id="celular">
+    <div class="status-bar">11:00</div>
+    <div class="menu-top">
+      <span>Meu Celular</span>
+      <button onclick="abrirMenu()">☰</button>
+    </div>
+    <div class="apps">
+      <div class="app-icon" onclick="window.location.href='presentes.html'"><i class="material-icons">card_giftcard</i>Presentes</div>
+      <div class="app-icon" onclick="window.location.href='chat.html'"><i class="material-icons">chat</i>Chat</div>
+      <div class="app-icon" onclick="window.location.href='contatos.html'"><i class="material-icons">contacts</i>Contatos</div>
+      <div class="app-icon" onclick="window.location.href='galeria.html'"><i class="material-icons">photo</i>Galeria</div>
+      <div class="app-icon" onclick="window.location.href='calendario.html'"><i class="material-icons">calendar_today</i>Calendário</div>
+    </div>
+    <div class="menu-lateral" id="menu">
+      <button onclick="bloquearTela()">🔒 Bloquear Tela</button>
+      <button onclick="alternarTema()">💡 Alternar Tema</button>
+    </div>
+  </div>
+
+  <script>
+    function abrirMenu() {
+      const menu = document.getElementById('menu');
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function bloquearTela() {
+      window.location.href = 'lockscreen.html';
+    }
+
+    function alternarTema() {
+      document.getElementById('celular').classList.toggle('tema-escuro');
+    }
+  </script>
+</body>
+</html>
