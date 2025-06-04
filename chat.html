@@ -2,147 +2,228 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chat com Amor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat Firebase</title>
+  <script type="module">
+    import { db } from './firebase.js';
+    import {
+      collection,
+      addDoc,
+      serverTimestamp,
+      query,
+      orderBy,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
+    const destinoChat = localStorage.getItem("destinoChat");
+    if (!destinoChat) {
+      alert("Escolha uma conversa.");
+      window.location.href = "conversas.html";
+    }
+
+    const messagesEl = document.getElementById("messages");
+    const form = document.getElementById("chat-form");
+    const input = document.getElementById("message-input");
+    const destinoEl = document.getElementById("destinoAtual");
+    const notificacaoEl = document.getElementById("notificacao");
+
+    const nomeChat = destinoChat.split(":")[1];
+    const tipo = destinoChat.startsWith("grupo:") ? "Grupo" : "Contato";
+    destinoEl.textContent = `${tipo}: ${nomeChat}`;
+
+    const mensagensRef = collection(db, "mensagens", destinoChat, "conversa");
+
+    function mostrarNotificacao(texto) {
+      notificacaoEl.textContent = texto;
+      notificacaoEl.style.display = "block";
+      setTimeout(() => {
+        notificacaoEl.style.display = "none";
+      }, 3000);
+    }
+
+    async function enviarMensagem(texto) {
+      await addDoc(mensagensRef, {
+        texto,
+        timestamp: serverTimestamp()
+      });
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const texto = input.value.trim();
+      if (!texto) return;
+      await enviarMensagem(texto);
+      input.value = "";
+      mostrarNotificacao("Mensagem enviada!");
+    });
+
+    function renderizarMensagens(snapshot) {
+      messagesEl.innerHTML = "";
+      snapshot.forEach(doc => {
+        const dados = doc.data();
+        const div = document.createElement("div");
+        div.className = "message";
+        div.textContent = dados.texto;
+        messagesEl.appendChild(div);
+      });
+      setTimeout(() => messagesEl.scrollTop = messagesEl.scrollHeight, 100);
+    }
+
+    const q = query(mensagensRef, orderBy("timestamp"));
+    onSnapshot(q, renderizarMensagens);
+  </script>
   <style>
     body {
       margin: 0;
-      background: #222;
+      background: linear-gradient(135deg, #0f1115, #1e222b);
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #fff;
     }
 
-    .phone {
-      width: 375px;
-      height: 667px;
-      background: #fefefe;
-      border: 12px solid #000;
-      border-radius: 40px;
+    .iphone {
+      width: 390px;
+      height: 844px;
+      background: #000;
+      border-radius: 60px;
+      border: 12px solid #1c1c1c;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7), inset 0 0 3px 2px #333;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-    }
-
-    .header {
-      background-color: #ff4d6d;
-      color: white;
-      padding: 14px;
-      text-align: center;
-      font-weight: bold;
-    }
-
-    .contatos {
-      padding: 10px;
-      background: #f9f9f9;
-      border-bottom: 1px solid #ccc;
-      max-height: 150px;
-      overflow-y: auto;
-    }
-
-    .contato {
-      cursor: pointer;
-      padding: 6px 10px;
-      border-bottom: 1px solid #eee;
-    }
-
-    .chat {
-      flex: 1;
-      padding: 10px;
-      overflow-y: auto;
-      background: #f3f3f3;
       position: relative;
     }
 
-    .message {
-      margin-bottom: 10px;
+    .screen {
+      flex: 1;
+      background: linear-gradient(180deg, #12131a, #1e2130);
+      border-radius: 48px;
+      box-shadow: inset 0 0 40px #0009;
+      display: flex;
+      flex-direction: column;
+      padding-top: 60px;
+      position: relative;
     }
 
-    .msg-text {
-      background: #fff;
-      padding: 10px 14px;
-      border-radius: 12px;
-      margin-bottom: 10px;
-      max-width: 80%;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 210px;
+      height: 34px;
+      background: black;
+      border-bottom-left-radius: 30px;
+      border-bottom-right-radius: 30px;
+      z-index: 10;
+    }
+
+    .chat-header {
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 16px;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-right: 6px;
+    }
+
+    .message {
+      max-width: 70%;
+      padding: 12px 16px;
+      border-radius: 20px;
+      background: #6a5af9;
+      align-self: flex-end;
+      color: white;
+      animation: fadeInUp 0.3s ease;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .input-area {
+      margin-top: 10px;
       display: flex;
-      border-top: 1px solid #ccc;
+      gap: 8px;
+      background: #23233b;
       padding: 10px;
-      background: #fff;
+      border-radius: 20px;
     }
 
     .input-area input {
       flex: 1;
       padding: 10px;
-      border-radius: 20px;
-      border: 1px solid #ccc;
-      outline: none;
+      border: none;
+      border-radius: 16px;
+      background: #353559;
+      color: #fff;
+      font-size: 16px;
     }
 
     .input-area button {
-      background: #ff4d6d;
-      color: white;
+      background: #6a5af9;
       border: none;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      margin-left: 10px;
+      width: 42px;
+      height: 42px;
+      color: white;
       font-size: 18px;
       cursor: pointer;
     }
 
-    .adicionar-contato {
-      display: flex;
-      padding: 10px;
-      gap: 5px;
-      background: #f9f9f9;
+    .input-area button:hover {
+      background: #836cff;
     }
 
-    .adicionar-contato input {
-      flex: 1;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      padding: 6px;
-    }
-
-    .adicionar-contato button {
-      padding: 6px 10px;
-      border-radius: 10px;
-      background: #ff4d6d;
+    #notificacao {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #6a5af9;
       color: white;
-      border: none;
-      cursor: pointer;
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
+      display: none;
+      z-index: 20;
+      border-bottom: 2px solid #453df5;
     }
   </style>
 </head>
 <body>
-  <div class="phone">
-    <div class="header">Chat com Amor 💬</div>
+  <div class="iphone">
+    <div id="notificacao">Nova mensagem</div>
+    <div class="screen">
+      <div class="notch"></div>
+      <div class="chat-header" id="destinoAtual">Carregando...</div>
 
-    <div class="adicionar-contato">
-      <input type="text" id="novoContato" placeholder="Adicionar contato..." />
-      <button onclick="adicionarContato(document.getElementById('novoContato').value)">+</button>
-    </div>
-
-    <div class="contatos" id="listaContatos">
-      <!-- Contatos renderizados aqui -->
-    </div>
-
-    <div class="chat" id="chat">
-      <!-- Mensagens renderizadas aqui -->
-    </div>
-
-    <div class="input-area">
-      <input type="text" id="mensagemInput" placeholder="Digite sua mensagem..." />
-      <button onclick="enviarMensagem()">➤</button>
+      <div class="chat-container">
+        <div class="messages" id="messages"></div>
+        <form class="input-area" id="chat-form">
+          <input type="text" id="message-input" placeholder="Digite sua mensagem..." />
+          <button type="submit">➤</button>
+        </form>
+      </div>
     </div>
   </div>
-  <script type="module" src="script-chat.js"></script>
 </body>
 </html>

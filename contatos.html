@@ -1,72 +1,146 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
   <title>Contatos</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body class="smartphone">
-  <div class="phone">
-    <header class="home-header">
-      <h2>Contatos</h2>
-    </header>
-    <main class="home-main">
-      <form id="form-contato" style="display: flex; padding: 10px; gap: 8px;">
-        <input type="text" id="contatoNome" placeholder="Nome do usuário..." required style="flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #ccc;">
-        <button type="submit" style="padding: 8px 16px; border-radius: 10px; background: #ff4d6d; color: white; border: none;">+</button>
-      </form>
-      <ul id="lista-contatos" style="list-style: none; padding: 0 10px;"></ul>
-    </main>
-    <footer class="home-footer">
-      <button onclick="window.location.href='home.html'">⬅ Voltar</button>
-    </footer>
-  </div>
-
-  <script type="module">
-    import { db, doc, getDoc, updateDoc, arrayUnion } from './firebase.js';
-
-    const user = localStorage.getItem("usuario");
-    const form = document.getElementById("form-contato");
-    const lista = document.getElementById("lista-contatos");
-
-    async function carregarContatos() {
-      if (!user) return;
-      const ref = doc(db, "usuarios", user);
-      const snap = await getDoc(ref);
-      const contatos = snap.exists() ? snap.data().contatos || [] : [];
-
-      lista.innerHTML = "";
-      contatos.forEach(nome => {
-        const li = document.createElement("li");
-        const link = document.createElement("a");
-        link.href = `chat.html?contato=${nome}`;
-        link.textContent = `💬 ${nome}`;
-        li.appendChild(link);
-        lista.appendChild(li);
-      });
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #0f1115, #1e222b);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #fff;
+    }
+    
+    .iphone {
+      width: 390px;
+      height: 844px;
+      background: #000;
+      border-radius: 60px;
+      border: 12px solid #1c1c1c;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), inset 0 0 3px 2px #333;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
     }
 
-    form.addEventListener("submit", async e => {
-      e.preventDefault();
-      const nomeContato = document.getElementById("contatoNome").value.trim();
-      if (!nomeContato || nomeContato === user) return;
+    .iphone::before {
+      content: "";
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      border-radius: 48px;
+      box-shadow: inset 0 0 15px #121212, 0 0 1px 1px #555555aa;
+      pointer-events: none;
+      z-index: 1;
+    }
 
-      const contatoSnap = await getDoc(doc(db, "usuarios", nomeContato));
-      if (!contatoSnap.exists()) {
-        alert("Usuário não encontrado.");
-        return;
-      }
+    .screen {
+      flex: 1;
+      background: linear-gradient(180deg, #12131a, #1e2130);
+      border-radius: 48px;
+      box-shadow: inset 0 0 40px #0009;
+      display: flex;
+      flex-direction: column;
+      padding: 60px 20px 20px;
+      overflow-y: auto;
+    }
 
-      await updateDoc(doc(db, "usuarios", user), {
-        contatos: arrayUnion(nomeContato)
-      });
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 210px;
+      height: 34px;
+      background: black;
+      border-bottom-left-radius: 30px;
+      border-bottom-right-radius: 30px;
+      z-index: 10;
+    }
 
-      document.getElementById("contatoNome").value = "";
-      carregarContatos();
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .contato {
+      background: #2d2f44;
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .contato .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    #lista-contatos {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone">
+    <div class="screen">
+      <div class="notch"></div>
+      <h2>Contatos</h2>
+
+      <!-- Formulário para adicionar contato -->
+  <input type="text" id="nome" placeholder="Nome do contato" />
+  <button onclick="adicionarContato()">Adicionar Contato</button>
+
+  <div id="lista-contatos"></div>
+</div>
+
+<script>
+  function carregarContatos() {
+    const lista = JSON.parse(localStorage.getItem("contatos") || "[]");
+    const container = document.getElementById("lista-contatos");
+    container.innerHTML = "";
+
+    lista.forEach(contato => {
+      const div = document.createElement("div");
+      div.className = "contato";
+      div.innerHTML = `
+        <div class="avatar">${contato.nome.charAt(0).toUpperCase()}</div>
+        <div>${contato.nome}</div>
+      `;
+      container.appendChild(div);
     });
+  }
 
+  function adicionarContato() {
+    const nome = document.getElementById("nome").value.trim();
+    if (!nome) return alert("Digite o nome do contato");
+
+    const contatos = JSON.parse(localStorage.getItem("contatos") || "[]");
+    contatos.push({ nome });
+    localStorage.setItem("contatos", JSON.stringify(contatos));
+    document.getElementById("nome").value = "";
     carregarContatos();
-  </script>
+  }
+
+  carregarContatos();
+</script>
 </body>
 </html>

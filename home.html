@@ -1,82 +1,204 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smartphone - Home</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body class="smartphone">
-  <div class="phone">
-    <header class="home-header">
-      <h2>Início</h2>
-    </header>
-    <main class="home-main">
-      <div class="icon-grid">
-        <a href="presentes.html" class="icon-button">
-          🎁<span>Presentes</span>
-        </a>
-        <a href="chat.html" class="icon-button">
-          💬<span>Chat</span>
-        </a>
-        <a href="contatos.html" class="icon-button">
-          📇<span>Contatos</span>
-        </a>
-        <a href="calendario.html" class="icon-button">
-          📅<span>Calendário</span>
-        </a>
-        <a href="galeria.html" class="icon-button">
-          🖼<span>Galeria</span>
-        </a>
-        <a href="relogio.html" class="icon-button">
-          ⏰<span>Relógio</span>
-        </a>
-      </div>
+  <meta charset="UTF-8" />
+  <title>iPhone Fake - Tela Principal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <style>
+    
+  body {
+      margin: 0;
+      background: linear-gradient(135deg, #0f1115, #1e222b);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #fff;
+    }
 
-      <div class="contatos-home" style="margin-top: 20px; padding: 0 10px;">
-        <h3>Meus Contatos</h3>
-        <ul id="listaContatosHome" style="list-style: none; padding-left: 0;"></ul>
+    .iphone {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      background: #000;
+      border-radius: 60px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), inset 0 0 3px 2px #333;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 12px solid #1c1c1c;
+    }
+
+    .iphone::before {
+      content: "";
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      border-radius: 48px;
+      box-shadow: inset 0 0 15px #121212, 0 0 1px 1px #555555aa;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .screen {
+      flex: 1;
+      background: linear-gradient(180deg, #12131a, #1e2130);
+      border-radius: 48px;
+      box-shadow: inset 0 0 40px #0009;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 60px;
+    }
+
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 210px;
+      height: 34px;
+      background: black;
+      border-bottom-left-radius: 30px;
+      border-bottom-right-radius: 30px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.8);
+      z-index: 10;
+    }
+
+    .clock {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+
+    .apps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      padding: 0 20px;
+    }
+
+    .app {
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .app-icon {
+      font-size: 30px;
+      background: #444868;
+      border-radius: 20px;
+      width: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      transition: transform 0.2s ease;
+    }
+
+    .app:hover .app-icon {
+      transform: scale(1.1);
+      background: #6a5af9;
+    }
+
+    .side-buttons.volume-up,
+    .side-buttons.volume-down,
+    .side-buttons.power {
+      position: absolute;
+      background: #222;
+      border-radius: 6px;
+      box-shadow: inset 0 2px 4px #111, 0 1px 2px #444;
+    }
+
+    .side-buttons.volume-up {
+      width: 6px;
+      height: 50px;
+      top: 100px;
+      left: -14px;
+    }
+
+    .side-buttons.volume-down {
+      width: 6px;
+      height: 50px;
+      top: 160px;
+      left: -14px;
+    }
+
+    .side-buttons.power {
+      width: 6px;
+      height: 90px;
+      top: 140px;
+      right: -14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone">
+    <div class="side-buttons volume-up"></div>
+    <div class="side-buttons volume-down"></div>
+    <div class="side-buttons power"></div>
+
+    <div class="screen">
+      <div class="notch"></div>
+      <div class="clock" id="clock">00:00</div>
+
+      <div class="apps">
+        <a href="calendario.html" class="app">
+          <div class="app-icon">📅</div>
+          <div>Calendário</div>
+        </a>
+        <a href="config.html" class="app">
+          <div class="app-icon">⚙️</div>
+          <div>Config</div>
+        </a>
+        <a href="presente.html" class="app">
+          <div class="app-icon">🎁</div>
+          <div>Presente</div>
+        </a>
+        <a href="contatos.html" class="app">
+          <div class="app-icon">👥</div>
+          <div>Contatos</div>
+        </a>
+        <a href="chat.html" class="app">
+          <div class="app-icon">💬</div>
+          <div>Chat</div>
+        </a>
       </div>
-    </main>
-    <footer class="home-footer">
-      <button onclick="bloquear()">🔒 Bloquear</button>
-      <button onclick="mudarTema()">💡 Tema</button>
-    </footer>
+      <button onclick="logout()" style="margin: 20px auto; padding: 10px 20px; background: #f44336; border: none; border-radius: 10px; color: white; font-size: 16px; cursor: pointer;">Sair</button>
+    </div>
   </div>
 
-  <script type="module">
-    import { db, doc, getDoc } from './firebase.js';
-
-    async function carregarContatosHome() {
-      const user = localStorage.getItem("usuario");
-      if (!user) return;
-      const ref = doc(db, "usuarios", user);
-      const snap = await getDoc(ref);
-      const lista = snap.exists() ? snap.data().contatos || [] : [];
-
-      const ul = document.getElementById("listaContatosHome");
-      ul.innerHTML = "";
-      lista.forEach(nome => {
-        const li = document.createElement("li");
-        const link = document.createElement("a");
-        link.href = `chat.html?contato=${nome}`;
-        link.textContent = `💬 ${nome}`;
-        li.appendChild(link);
-        ul.appendChild(li);
-      });
-    }
-
-    carregarContatosHome();
-  </script>
   <script>
-    function bloquear() {
-      window.location.href = 'lockscreen.html';
-    }
+  // Proteção: só entra se estiver logado
+  if (!localStorage.getItem("usuario")) {
+    window.location.href = "acesso.html";
+  }
 
-    function mudarTema() {
-      const phone = document.querySelector('.phone');
-      phone.classList.toggle('tema-escuro');
-    }
-  </script>
+  // Relógio
+  function updateClock() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    document.getElementById("clock").textContent = `${hours}:${minutes}`;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // Logout
+  function logout() {
+    localStorage.removeItem("usuario");
+    window.location.href = "acesso.html";
+  }
+</script>
+
 </body>
 </html>
