@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chat Firebase</title>
+  <title>Chat</title>
   <script type="module">
     import { db } from './firebase.js';
     import {
@@ -12,26 +12,30 @@
       serverTimestamp,
       query,
       orderBy,
-      onSnapshot
+      onSnapshot,
+      getDocs
     } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
-    const destinoChat = localStorage.getItem("destinoChat");
-    if (!destinoChat) {
-      alert("Escolha uma conversa.");
-      window.location.href = "conversas.html";
+    const usuario = localStorage.getItem("usuario");
+    if (!usuario) {
+      alert("Usuário não identificado. Faça login.");
+      window.location.href = "acesso.html";
     }
 
+    const destinoChat = localStorage.getItem("destinoChat");
+    const destinoEl = document.getElementById("destinoAtual");
     const messagesEl = document.getElementById("messages");
     const form = document.getElementById("chat-form");
     const input = document.getElementById("message-input");
-    const destinoEl = document.getElementById("destinoAtual");
     const notificacaoEl = document.getElementById("notificacao");
 
-    const nomeChat = destinoChat.split(":")[1];
-    const tipo = destinoChat.startsWith("grupo:") ? "Grupo" : "Contato";
-    destinoEl.textContent = `${tipo}: ${nomeChat}`;
-
-    const mensagensRef = collection(db, "mensagens", destinoChat, "conversa");
+    if (!destinoChat) {
+      destinoEl.textContent = "Nenhum chat ativo";
+    } else {
+      const nomeChat = destinoChat.split(":")[1];
+      const tipo = destinoChat.startsWith("grupo:") ? "Grupo" : "Contato";
+      destinoEl.textContent = `${tipo}: ${nomeChat}`;
+    }
 
     function mostrarNotificacao(texto) {
       notificacaoEl.textContent = texto;
@@ -42,36 +46,92 @@
     }
 
     async function enviarMensagem(texto) {
+      const mensagensRef = collection(db, "mensagens", destinoChat, "conversa");
       await addDoc(mensagensRef, {
         texto,
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
+        autor: usuario
       });
     }
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const texto = input.value.trim();
-      if (!texto) return;
+      if (!texto || !destinoChat) return;
       await enviarMensagem(texto);
       input.value = "";
       mostrarNotificacao("Mensagem enviada!");
     });
 
-    function renderizarMensagens(snapshot) {
-      messagesEl.innerHTML = "";
-      snapshot.forEach(doc => {
-        const dados = doc.data();
-        const div = document.createElement("div");
-        div.className = "message";
-        div.textContent = dados.texto;
-        messagesEl.appendChild(div);
+    if (destinoChat) {
+      const mensagensRef = collection(db, "mensagens", destinoChat, "conversa");
+      const q = query(mensagensRef, orderBy("timestamp"));
+      onSnapshot(q, (snapshot) => {
+        messagesEl.innerHTML = "";
+        snapshot.forEach(doc => {
+          const dados = doc.data();
+          const div = document.createElement("div");
+          div.className = "message";
+          div.textContent = dados.texto;
+          messagesEl.appendChild(div);
+        });
+        setTimeout(() => messagesEl.scrollTop = messagesEl.scrollHeight, 100);
       });
-      setTimeout(() => messagesEl.scrollTop = messagesEl.scrollHeight, 100);
     }
 
-    const q = query(mensagensRef, orderBy("timestamp"));
-    onSnapshot(q, renderizarMensagens);
+    const contatosRef = collection(db, "usuarios", usuario, "contatos");
+    const gruposRef = collection(db, "usuarios", usuario, "grupos");
+
+    window.mostrarContatos = async function () {
+      const snap = await getDocs(contatosRef);
+      const contatos = [];
+      snap.forEach(doc => contatos.push(doc.data().nome));
+
+      if (contatos.length === 0) return alert("Nenhum contato.");
+      const nome = prompt("Conversar com:\n" + contatos.join("\n"));
+      if (!nome) return;
+      localStorage.setItem("destinoChat", `contato:${nome}`);
+      location.reload();
+    };
+
+    window.mostrarGrupos = async function () {
+      const snap = await getDocs(gruposRef);
+      const grupos = [];
+      snap.forEach(doc => grupos.push(doc.data().nome));
+
+      if (grupos.length === 0) return alert("Nenhum grupo.");
+      const nome = prompt("Abrir grupo:\n" + grupos.join("\n"));
+      if (!nome) return;
+      localStorage.setItem("destinoChat", `grupo:${nome}`);
+      location.reload();
+    };
+
+    window.abrirModalGrupo = async function () {
+      const snap = await getDocs(contatosRef);
+      const contatos = [];
+      snap.forEach(doc => contatos.push(doc.data().nome));
+
+      const box = document.getElementById("checkboxContatos");
+      box.innerHTML = contatos.map(c =>
+        `<label><input type="checkbox" value="${c}" /> ${c}</label>`
+      ).join("");
+
+      document.getElementById("modalGrupo").style.display = "block";
+    };
+
+    window.criarGrupo = async function () {
+      const nome = document.getElementById("nomeGrupo").value.trim();
+      const checks = document.querySelectorAll("#checkboxContatos input:checked");
+      const membros = Array.from(checks).map(c => c.value);
+
+      if (!nome || membros.length === 0) return alert("Informe nome e membros.");
+
+      await addDoc(gruposRef, { nome, membros });
+      document.getElementById("modalGrupo").style.display = "none";
+      alert("Grupo salvo!");
+    };
   </script>
+
   <style>
     body {
       margin: 0;
@@ -124,8 +184,16 @@
     .chat-header {
       text-align: center;
       padding: 10px;
-      font-weight: bold;
-      font-size: 18px;
+    }
+
+    .chat-header button {
+      margin: 4px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: #6a5af9;
+      color: white;
+      border: none;
+      cursor: pointer;
     }
 
     .chat-container {
@@ -152,11 +220,6 @@
       align-self: flex-end;
       color: white;
       animation: fadeInUp 0.3s ease;
-    }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     .input-area {
@@ -189,8 +252,37 @@
       cursor: pointer;
     }
 
-    .input-area button:hover {
-      background: #836cff;
+    #modalGrupo {
+      position: absolute;
+      top: 60px;
+      left: 0;
+      right: 0;
+      background: #1e2130;
+      padding: 20px;
+      border-top: 2px solid #6a5af9;
+      z-index: 99;
+      display: none;
+    }
+
+    #modalGrupo h3 {
+      margin-top: 0;
+    }
+
+    #modalGrupo label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    #modalGrupo button {
+      margin-top: 10px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      background: #6a5af9;
+      color: white;
+      cursor: pointer;
     }
 
     #notificacao {
@@ -214,7 +306,20 @@
     <div id="notificacao">Nova mensagem</div>
     <div class="screen">
       <div class="notch"></div>
-      <div class="chat-header" id="destinoAtual">Carregando...</div>
+
+      <div class="chat-header">
+        <button onclick="mostrarContatos()">👥 Contatos</button>
+        <button onclick="mostrarGrupos()">👨‍👩‍👧 Grupos</button>
+        <button onclick="abrirModalGrupo()">➕ Novo Grupo</button>
+        <div id="destinoAtual" style="margin-top: 8px; font-weight: bold;">Carregando...</div>
+      </div>
+
+      <div id="modalGrupo">
+        <h3>Novo Grupo</h3>
+        <input type="text" id="nomeGrupo" placeholder="Nome do grupo" style="width: 100%; margin-bottom: 10px; padding: 8px;" />
+        <div id="checkboxContatos"></div>
+        <button onclick="criarGrupo()">Criar Grupo</button>
+      </div>
 
       <div class="chat-container">
         <div class="messages" id="messages"></div>
