@@ -2,23 +2,18 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script type="module">
     import { db } from './firebase.js';
     import {
-      collection,
-      addDoc,
-      serverTimestamp,
-      query,
-      orderBy,
-      onSnapshot,
-      getDocs
+      collection, addDoc, serverTimestamp, query, orderBy, onSnapshot,
+      getDocs, getDoc, updateDoc, doc
     } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
     const usuario = localStorage.getItem("usuario");
     if (!usuario) {
-      alert("Usuário não identificado. Faça login.");
+      alert("Usuário não identificado.");
       window.location.href = "acesso.html";
     }
 
@@ -32,9 +27,13 @@
     if (!destinoChat) {
       destinoEl.textContent = "Nenhum chat ativo";
     } else {
-      const nomeChat = destinoChat.split(":")[1];
-      const tipo = destinoChat.startsWith("grupo:") ? "Grupo" : "Contato";
-      destinoEl.textContent = `${tipo}: ${nomeChat}`;
+      if (destinoChat.startsWith("grupo:")) {
+        destinoEl.textContent = `Grupo: ${destinoChat.split(":")[1]}`;
+      } else {
+        const partes = destinoChat.split(":")[1].split("-");
+        const outro = partes.find(p => p !== usuario);
+        destinoEl.textContent = `Contato: ${outro}`;
+      }
     }
 
     function mostrarNotificacao(texto) {
@@ -42,7 +41,7 @@
       notificacaoEl.style.display = "block";
       setTimeout(() => {
         notificacaoEl.style.display = "none";
-      }, 3000);
+      }, 2000);
     }
 
     async function enviarMensagem(texto) {
@@ -63,6 +62,45 @@
       mostrarNotificacao("Mensagem enviada!");
     });
 
+    function formatarHora(timestamp) {
+      if (!timestamp) return "--:--";
+      const data = timestamp.toDate();
+      return data.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function criarReacoesHtml(idMensagem, reacoesExistentes) {
+      const emojis = ['😍', '😂', '👍', '❤️'];
+      return emojis.map(emoji => {
+        const usuarios = reacoesExistentes[emoji] || [];
+        const count = usuarios.length;
+        const selecionado = usuarios.includes(usuario) ? 'selecionado' : '';
+        return `
+          <span class="reacao ${selecionado}" onclick="reagir('${idMensagem}', '${emoji}')">
+            ${emoji} ${count > 0 ? count : ""}
+          </span>
+        `;
+      }).join(" ");
+    }
+
+    window.reagir = async function (idMensagem, emoji) {
+      const msgRef = doc(db, "mensagens", destinoChat, "conversa", idMensagem);
+      const snap = await getDoc(msgRef);
+      if (!snap.exists()) return;
+
+      const dados = snap.data();
+      let reacoes = dados.reacoes || {};
+
+      if (!reacoes[emoji]) reacoes[emoji] = [];
+
+      if (reacoes[emoji].includes(usuario)) {
+        reacoes[emoji] = reacoes[emoji].filter(u => u !== usuario);
+      } else {
+        reacoes[emoji].push(usuario);
+      }
+
+      await updateDoc(msgRef, { reacoes });
+    };
+
     if (destinoChat) {
       const mensagensRef = collection(db, "mensagens", destinoChat, "conversa");
       const q = query(mensagensRef, orderBy("timestamp"));
@@ -72,7 +110,25 @@
           const dados = doc.data();
           const div = document.createElement("div");
           div.className = "message";
-          div.textContent = dados.texto;
+          const hora = formatarHora(dados.timestamp);
+
+          if (dados.autor === usuario) {
+            div.classList.add("enviada");
+            div.innerHTML = `
+              <div>${dados.texto}</div>
+              <div class="msg-footer">${hora}</div>
+              
+            `;
+          } else {
+            div.classList.add("recebida");
+            div.innerHTML = `
+              <div class="autor">${dados.autor}:</div>
+              <div>${dados.texto}</div>
+              <div class="msg-footer">${hora}</div>
+              
+            `;
+          }
+
           messagesEl.appendChild(div);
         });
         setTimeout(() => messagesEl.scrollTop = messagesEl.scrollHeight, 100);
@@ -84,54 +140,26 @@
 
     window.mostrarContatos = async function () {
       const snap = await getDocs(contatosRef);
-      const contatos = [];
-      snap.forEach(doc => contatos.push(doc.data().nome));
-
-      if (contatos.length === 0) return alert("Nenhum contato.");
-      const nome = prompt("Conversar com:\n" + contatos.join("\n"));
+      const nomes = snap.docs.map(doc => doc.data().nome);
+      if (nomes.length === 0) return alert("Nenhum contato.");
+      const nome = prompt("Conversar com:" + nomes.join(""));
       if (!nome) return;
-      localStorage.setItem("destinoChat", `contato:${nome}`);
+      const ids = [usuario, nome].sort();
+      const chatId = `contato:${ids.join("-")}`;
+      localStorage.setItem("destinoChat", chatId);
       location.reload();
     };
 
     window.mostrarGrupos = async function () {
       const snap = await getDocs(gruposRef);
-      const grupos = [];
-      snap.forEach(doc => grupos.push(doc.data().nome));
-
-      if (grupos.length === 0) return alert("Nenhum grupo.");
-      const nome = prompt("Abrir grupo:\n" + grupos.join("\n"));
+      const nomes = snap.docs.map(doc => doc.data().nome);
+      if (nomes.length === 0) return alert("Nenhum grupo.");
+      const nome = prompt("Abrir grupo:" + nomes.join(""));
       if (!nome) return;
       localStorage.setItem("destinoChat", `grupo:${nome}`);
       location.reload();
     };
-
-    window.abrirModalGrupo = async function () {
-      const snap = await getDocs(contatosRef);
-      const contatos = [];
-      snap.forEach(doc => contatos.push(doc.data().nome));
-
-      const box = document.getElementById("checkboxContatos");
-      box.innerHTML = contatos.map(c =>
-        `<label><input type="checkbox" value="${c}" /> ${c}</label>`
-      ).join("");
-
-      document.getElementById("modalGrupo").style.display = "block";
-    };
-
-    window.criarGrupo = async function () {
-      const nome = document.getElementById("nomeGrupo").value.trim();
-      const checks = document.querySelectorAll("#checkboxContatos input:checked");
-      const membros = Array.from(checks).map(c => c.value);
-
-      if (!nome || membros.length === 0) return alert("Informe nome e membros.");
-
-      await addDoc(gruposRef, { nome, membros });
-      document.getElementById("modalGrupo").style.display = "none";
-      alert("Grupo salvo!");
-    };
   </script>
-
   <style>
     body {
       margin: 0;
@@ -143,7 +171,6 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: #fff;
     }
-
     .iphone {
       width: 390px;
       height: 844px;
@@ -156,7 +183,6 @@
       overflow: hidden;
       position: relative;
     }
-
     .screen {
       flex: 1;
       background: linear-gradient(180deg, #12131a, #1e2130);
@@ -165,9 +191,7 @@
       display: flex;
       flex-direction: column;
       padding-top: 60px;
-      position: relative;
     }
-
     .notch {
       position: absolute;
       top: 0;
@@ -180,12 +204,10 @@
       border-bottom-right-radius: 30px;
       z-index: 10;
     }
-
     .chat-header {
       text-align: center;
       padding: 10px;
     }
-
     .chat-header button {
       margin: 4px;
       padding: 6px 12px;
@@ -195,14 +217,12 @@
       border: none;
       cursor: pointer;
     }
-
     .chat-container {
       flex: 1;
       display: flex;
       flex-direction: column;
       padding: 10px 16px;
     }
-
     .messages {
       flex: 1;
       overflow-y: auto;
@@ -211,18 +231,32 @@
       gap: 12px;
       padding-right: 6px;
     }
-
     .message {
       max-width: 70%;
       padding: 12px 16px;
       border-radius: 20px;
       background: #6a5af9;
-      align-self: flex-end;
       color: white;
-      animation: fadeInUp 0.3s ease;
+      align-self: flex-end;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
     }
-
-    .input-area {
+    .message.recebida {
+      align-self: flex-start;
+      background: #444868;
+    }
+    .msg-footer {
+      font-size: 12px;
+      color: #ccc;
+      text-align: right;
+    }
+    .autor {
+      font-size: 13px;
+      font-weight: bold;
+      color: #aaa;
+    }    .input-area {
       margin-top: 10px;
       display: flex;
       gap: 8px;
@@ -230,7 +264,6 @@
       padding: 10px;
       border-radius: 20px;
     }
-
     .input-area input {
       flex: 1;
       padding: 10px;
@@ -240,7 +273,6 @@
       color: #fff;
       font-size: 16px;
     }
-
     .input-area button {
       background: #6a5af9;
       border: none;
@@ -251,40 +283,6 @@
       font-size: 18px;
       cursor: pointer;
     }
-
-    #modalGrupo {
-      position: absolute;
-      top: 60px;
-      left: 0;
-      right: 0;
-      background: #1e2130;
-      padding: 20px;
-      border-top: 2px solid #6a5af9;
-      z-index: 99;
-      display: none;
-    }
-
-    #modalGrupo h3 {
-      margin-top: 0;
-    }
-
-    #modalGrupo label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    #modalGrupo button {
-      margin-top: 10px;
-      padding: 8px 14px;
-      border: none;
-      border-radius: 8px;
-      background: #6a5af9;
-      color: white;
-      cursor: pointer;
-    }
-
     #notificacao {
       position: absolute;
       top: 0;
@@ -306,21 +304,11 @@
     <div id="notificacao">Nova mensagem</div>
     <div class="screen">
       <div class="notch"></div>
-
       <div class="chat-header">
         <button onclick="mostrarContatos()">👥 Contatos</button>
         <button onclick="mostrarGrupos()">👨‍👩‍👧 Grupos</button>
-        <button onclick="abrirModalGrupo()">➕ Novo Grupo</button>
         <div id="destinoAtual" style="margin-top: 8px; font-weight: bold;">Carregando...</div>
       </div>
-
-      <div id="modalGrupo">
-        <h3>Novo Grupo</h3>
-        <input type="text" id="nomeGrupo" placeholder="Nome do grupo" style="width: 100%; margin-bottom: 10px; padding: 8px;" />
-        <div id="checkboxContatos"></div>
-        <button onclick="criarGrupo()">Criar Grupo</button>
-      </div>
-
       <div class="chat-container">
         <div class="messages" id="messages"></div>
         <form class="input-area" id="chat-form">

@@ -7,13 +7,7 @@
   <script type="module">
     import { db } from './firebase.js';
     import {
-      collection,
-      getDocs,
-      getDoc,
-      doc,
-      query,
-      orderBy,
-      limit
+      collection, getDocs, query, orderBy, limit
     } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
     const usuario = localStorage.getItem("usuario");
@@ -22,27 +16,30 @@
       window.location.href = "acesso.html";
     }
 
+    const listaEl = document.getElementById("lista-conversas");
     const contatosRef = collection(db, "usuarios", usuario, "contatos");
     const gruposRef = collection(db, "usuarios", usuario, "grupos");
 
-    const listaEl = document.getElementById("lista-conversas");
+    function criarIdContato(a, b) {
+      return [a, b].sort().join("-");
+    }
 
-    function criarElementoConversa(tipo, nome, preview) {
+    function criarElementoConversa(tipo, nomeExibido, chatId, preview) {
       const div = document.createElement("div");
       div.className = "conversa";
       div.onclick = () => {
-        localStorage.setItem("destinoChat", `${tipo}:${nome}`);
+        localStorage.setItem("destinoChat", `${tipo}:${chatId}`);
         window.location.href = "chat.html";
       };
 
       const avatar = document.createElement("div");
       avatar.className = "avatar";
-      avatar.textContent = nome.charAt(0).toUpperCase();
+      avatar.textContent = nomeExibido.charAt(0).toUpperCase();
 
       const info = document.createElement("div");
       info.className = "info";
       info.innerHTML = `
-        <div class="nome">${nome}</div>
+        <div class="nome">${nomeExibido}</div>
         <div class="preview">${preview}</div>
       `;
 
@@ -51,8 +48,8 @@
       return div;
     }
 
-    async function buscarUltimaMensagem(destinoChat) {
-      const mensagensRef = collection(db, "mensagens", destinoChat, "conversa");
+    async function buscarUltimaMensagem(chatId) {
+      const mensagensRef = collection(db, "mensagens", chatId, "conversa");
       const q = query(mensagensRef, orderBy("timestamp", "desc"), limit(1));
       const snap = await getDocs(q);
       if (!snap.empty) {
@@ -65,23 +62,29 @@
     async function carregarConversas() {
       listaEl.innerHTML = "";
 
+      // Contatos
       const contatosSnap = await getDocs(contatosRef);
       for (const doc of contatosSnap.docs) {
         const nome = doc.data().nome;
-        const preview = await buscarUltimaMensagem(`contato:${nome}`);
-        listaEl.appendChild(criarElementoConversa("contato", nome, preview));
+        const idChat = criarIdContato(usuario, nome);
+        const chatId = `contato:${idChat}`;
+        const preview = await buscarUltimaMensagem(chatId);
+        listaEl.appendChild(criarElementoConversa("contato", nome, idChat, preview));
       }
 
+      // Grupos
       const gruposSnap = await getDocs(gruposRef);
       for (const doc of gruposSnap.docs) {
         const nome = doc.data().nome;
-        const preview = await buscarUltimaMensagem(`grupo:${nome}`);
-        listaEl.appendChild(criarElementoConversa("grupo", nome, preview));
+        const chatId = `grupo:${nome}`;
+        const preview = await buscarUltimaMensagem(chatId);
+        listaEl.appendChild(criarElementoConversa("grupo", nome, nome, preview));
       }
     }
 
     carregarConversas();
   </script>
+
   <style>
     body {
       margin: 0;
