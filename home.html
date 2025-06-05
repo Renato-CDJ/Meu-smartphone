@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>iPhone Fake - Tela Principal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
+  
   <style>
     body {
       margin: 0;
@@ -185,7 +185,7 @@
           <div class="app-icon">👥</div>
           <div>Contatos</div>
         </a>
-        <a href="chat.html" class="app">
+        <a href="conversas.html" class="app">
           <div class="app-icon">💬</div>
           <div>Chat</div>
         </a>
@@ -200,12 +200,10 @@
   </div>
 
   <script>
-    // Proteção: só entra se estiver logado
     if (!localStorage.getItem("usuario")) {
       window.location.href = "acesso.html";
     }
 
-    // Relógio
     function updateClock() {
       const now = new Date();
       const hours = String(now.getHours()).padStart(2, "0");
@@ -215,7 +213,6 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // Logout
     function logout() {
       localStorage.removeItem("usuario");
       window.location.href = "acesso.html";

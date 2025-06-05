@@ -22,6 +22,21 @@
     const form = document.getElementById("chat-form");
     const input = document.getElementById("message-input");
     const nomeContatoEl = document.getElementById("nomeContato");
+const avatarContatoEl = document.getElementById("avatarContato");
+
+import { getDoc, doc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
+async function carregarFoto() {
+  const contatoDoc = await getDoc(doc(db, "usuarios", outro));
+  if (contatoDoc.exists()) {
+    const data = contatoDoc.data();
+    if (data.fotoPerfil) {
+      avatarContatoEl.src = data.fotoPerfil;
+    }
+  }
+}
+
+carregarFoto();
 
     if (!destinoChat) {
       nomeContatoEl.textContent = "Nenhum chat";
@@ -115,13 +130,15 @@
     }
 
     .screen {
-      flex: 1;
-      background: #e7f4fb;
-      border-radius: 48px;
-      display: flex;
-      flex-direction: column;
-      padding-top: 60px;
-    }
+  flex: 1;
+  background: linear-gradient(180deg, #12131a, #1e2130); /* fundo padrão escuro */
+  border-radius: 48px;
+  box-shadow: inset 0 0 40px #0009;
+  display: flex;
+  flex-direction: column;
+  padding-top: 60px;
+}
+
 
     .notch {
       position: absolute;
@@ -259,7 +276,8 @@
     <div class="screen">
       <div class="chat-header">
         <button class="voltar" onclick="history.back()">←</button>
-        <img src="https://via.placeholder.com/40" alt="avatar" />
+        <img id="avatarContato" src="https://via.placeholder.com/40" alt="avatar">
+
         <div class="info">
           <div class="nome" id="nomeContato">Carregando...</div>
           <div class="status">Online</div>
