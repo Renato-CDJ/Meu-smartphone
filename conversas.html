@@ -64,6 +64,20 @@
     async function carregarConversas(filtro = "") {
       listaEl.innerHTML = "";
 
+    async function mostrarContatos() {
+  const contatosSnap = await getDocs(contatosRef);
+  const nomes = contatosSnap.docs.map(doc => doc.data().nome);
+  if (nomes.length === 0) return alert("Você não tem contatos.");
+
+  const nome = prompt("Escolha um contato para conversar:\n\n" + nomes.join("\n"));
+  if (!nome) return;
+
+  const idChat = criarIdContato(usuario, nome);
+  localStorage.setItem("destinoChat", `contato:${idChat}`);
+  window.location.href = "chat.html";
+}
+
+
       // Contatos
       const contatosSnap = await getDocs(contatosRef);
       for (const doc of contatosSnap.docs) {
@@ -243,7 +257,8 @@ listaEl.appendChild(criarElementoConversa("contato", nome, idChat, preview)); //
         <input id="busca" type="text" placeholder="Buscar..." />
       </div>
       <div id="lista-conversas"></div>
-      <div class="botao-flutuante" title="Nova conversa">✏️</div>
+      <div class="botao-flutuante" title="Nova conversa" onclick="mostrarContatos()">✏️</div>
+
     </div>
   </div>
 </body>
