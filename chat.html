@@ -70,9 +70,10 @@
         const nome = doc.data().nome;
         if (filtro && !nome.toLowerCase().includes(filtro.toLowerCase())) continue;
         const idChat = criarIdContato(usuario, nome);
-        const chatId = `contato:${idChat}`;
-        const preview = await buscarUltimaMensagem(chatId);
-        listaEl.appendChild(criarElementoConversa("contato", nome, idChat, preview));
+const chatIdCompleto = `contato:${idChat}`;
+const preview = await buscarUltimaMensagem(chatIdCompleto);
+listaEl.appendChild(criarElementoConversa("contato", nome, idChat, preview)); // <- sem 'contato:' aqui
+
       }
 
       // Grupos
