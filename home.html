@@ -4,10 +4,9 @@
   <meta charset="UTF-8" />
   <title>iPhone Fake - Tela Principal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  
+
   <style>
-    
-  body {
+    body {
       margin: 0;
       background: linear-gradient(135deg, #0f1115, #1e222b);
       display: flex;
@@ -110,6 +109,24 @@
       background: #6a5af9;
     }
 
+    .logout-button {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background: #f44336;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .logout-button:hover {
+      background: #d32f2f;
+    }
+
     .side-buttons.volume-up,
     .side-buttons.volume-down,
     .side-buttons.power {
@@ -172,33 +189,37 @@
           <div class="app-icon">💬</div>
           <div>Chat</div>
         </a>
+        <a href="tetris.html" class="app">
+          <div class="app-icon">🕹️</div>
+          <div>Tetris</div>
+        </a>
       </div>
-      <button onclick="logout()" style="margin: 20px auto; padding: 10px 20px; background: #f44336; border: none; border-radius: 10px; color: white; font-size: 16px; cursor: pointer;">Sair</button>
+
+      <button class="logout-button" onclick="logout()">Sair</button>
     </div>
   </div>
 
   <script>
-  // Proteção: só entra se estiver logado
-  if (!localStorage.getItem("usuario")) {
-    window.location.href = "acesso.html";
-  }
+    // Proteção: só entra se estiver logado
+    if (!localStorage.getItem("usuario")) {
+      window.location.href = "acesso.html";
+    }
 
-  // Relógio
-  function updateClock() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    document.getElementById("clock").textContent = `${hours}:${minutes}`;
-  }
-  setInterval(updateClock, 1000);
-  updateClock();
+    // Relógio
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      document.getElementById("clock").textContent = `${hours}:${minutes}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
 
-  // Logout
-  function logout() {
-    localStorage.removeItem("usuario");
-    window.location.href = "acesso.html";
-  }
-</script>
-
+    // Logout
+    function logout() {
+      localStorage.removeItem("usuario");
+      window.location.href = "acesso.html";
+    }
+  </script>
 </body>
 </html>

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Entrar</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
       margin: 0;
@@ -27,19 +27,6 @@
       flex-direction: column;
       overflow: hidden;
       position: relative;
-    }
-
-    .iphone::before {
-      content: "";
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      right: 12px;
-      bottom: 12px;
-      border-radius: 48px;
-      box-shadow: inset 0 0 15px #121212, 0 0 1px 1px #555555aa;
-      pointer-events: none;
-      z-index: 1;
     }
 
     .screen {
@@ -67,53 +54,57 @@
       z-index: 10;
     }
 
-    h2 {
-      margin-bottom: 24px;
+    .password-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 15px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
     }
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 14px;
-      border-radius: 10px;
+    .password-box input {
+      padding: 10px;
+      border-radius: 8px;
       border: none;
-      background: #2d2f44;
-      color: white;
+      margin-top: 10px;
       font-size: 16px;
+      width: 150px;
+      text-align: center;
     }
 
-    button {
-      width: 100%;
+    .password-box button {
+      margin-top: 10px;
+      padding: 8px 16px;
       background: #6a5af9;
       color: white;
-      padding: 12px;
       border: none;
-      border-radius: 10px;
-      font-size: 16px;
+      border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s;
     }
 
-    button:hover {
-      background: #867cff;
+    .password-box button:hover {
+      background: #5946e0;
     }
 
     .msg {
       margin-top: 10px;
       font-size: 14px;
-      color: #f66;
-    }
-
-    .link {
-      margin-top: 20px;
-      font-size: 14px;
-      color: #aaa;
       text-align: center;
     }
 
-    .link a {
-      color: #6aafff;
-      text-decoration: underline;
+    .msg.success {
+      color: #6af96a;
+      font-weight: bold;
+    }
+
+    .msg.error {
+      color: #f66;
     }
   </style>
 </head>
@@ -122,11 +113,11 @@
     <div class="screen">
       <div class="notch"></div>
       <h2>Entrar</h2>
-      <input type="text" id="usuario" placeholder="Nome do aparelho/usuário" />
-      <input type="password" id="senha" placeholder="Senha" />
-      <button onclick="entrar()">Acessar</button>
+      <input type="text" id="usuario" placeholder="Nome do aparelho/usuário" class="input-style">
+      <input type="password" id="senha" placeholder="Senha" class="input-style">
+      <button class="btn-style" onclick="entrar()">Acessar</button>
       <div class="msg" id="msg"></div>
-      <div class="link">Ainda não tem conta? <a href="cadastro.html">Cadastrar</a></div>
+      <div class="msg link">Ainda não tem conta? <a href="cadastro.html">Cadastrar</a></div>
     </div>
   </div>
 
@@ -139,10 +130,19 @@
 
       if (dadosSalvos && usuario === dadosSalvos.usuario && senha === dadosSalvos.senha) {
         localStorage.setItem("usuario", usuario);
-        window.location.href = "home.html";
+        msg.textContent = "Login bem-sucedido! Redirecionando...";
+        msg.className = "msg success";
+        setTimeout(() => {
+          window.location.href = "home.html";
+        }, 1000);
       } else {
         msg.textContent = "Usuário ou senha incorretos.";
+        msg.className = "msg error";
       }
+    }
+
+    function voltar() {
+      window.location.href = "index.html";
     }
   </script>
 </body>
