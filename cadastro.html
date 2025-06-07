@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Cadastro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <style>
     body {
       margin: 0;
@@ -114,7 +113,7 @@
     }
   });
 
-  async function cadastrar() {
+  window.cadastrar = async function () {
     const usuario = document.getElementById('usuario').value.trim();
     const senha = document.getElementById('senha').value.trim();
 
@@ -123,17 +122,24 @@
       return;
     }
 
-    await setDoc(doc(db, "usuarios", usuario), {
-      usuario,
-      senha,
-      fotoPerfil: fotoDataURL
-    });
+    try {
+      await setDoc(doc(db, "usuarios", usuario), {
+        usuario,
+        senha,
+        fotoPerfil: fotoDataURL,
+        adm: ["Renato", "Pir"].includes(usuario)
+      });
 
-    localStorage.setItem('usuario', usuario);
-    alert('Cadastro realizado!');
-    window.location.href = "home.html";
-  }
+      localStorage.setItem('usuario', usuario);
+      alert('Cadastro realizado!');
+      window.location.href = "home.html";
+    } catch (error) {
+      console.error("Erro ao cadastrar:", error);
+      alert("Erro ao cadastrar: " + error.message);
+    }
+  };
 </script>
+
 
 </body>
 </html>

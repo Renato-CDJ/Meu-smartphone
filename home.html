@@ -2,58 +2,44 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>iPhone Fake - Tela Principal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  
+  <title>Início</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="module">
+    import { aplicarTemaAutomaticamente } from './tema.js';
+    aplicarTemaAutomaticamente();
+  </script>
   <style>
     body {
       margin: 0;
-      background: linear-gradient(135deg, #0f1115, #1e222b);
+      background: #12131a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      color: #fff;
+      color: white;
     }
 
     .iphone {
-      position: relative;
       width: 390px;
       height: 844px;
       background: #000;
       border-radius: 60px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), inset 0 0 3px 2px #333;
+      border: 12px solid #1c1c1c;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      border: 12px solid #1c1c1c;
-    }
-
-    .iphone::before {
-      content: "";
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      right: 12px;
-      bottom: 12px;
-      border-radius: 48px;
-      box-shadow: inset 0 0 15px #121212, 0 0 1px 1px #555555aa;
-      pointer-events: none;
-      z-index: 1;
+      position: relative;
     }
 
     .screen {
       flex: 1;
-      background: linear-gradient(180deg, #12131a, #1e2130);
-      border-radius: 48px;
-      box-shadow: inset 0 0 40px #0009;
-      position: relative;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding-top: 60px;
+      padding-bottom: 20px;
     }
 
     .notch {
@@ -66,14 +52,29 @@
       background: black;
       border-bottom-left-radius: 30px;
       border-bottom-right-radius: 30px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.8);
       z-index: 10;
     }
 
-    .clock {
-      font-size: 24px;
+    .perfil-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .perfil-box img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid #6a5af9;
+      object-fit: cover;
+    }
+
+    .perfil-box #bemvindo {
+      font-size: 16px;
       font-weight: bold;
-      margin-bottom: 30px;
+      text-align: center;
     }
 
     .apps {
@@ -81,13 +82,14 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 20px;
       padding: 0 20px;
+      justify-items: center;
+      width: 100%;
     }
 
     .app {
       text-align: center;
-      cursor: pointer;
+      color: white;
       text-decoration: none;
-      color: #fff;
     }
 
     .app-icon {
@@ -110,9 +112,7 @@
     }
 
     .logout-button {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
+      margin-top: 30px;
       padding: 10px 20px;
       background: #f44336;
       border: none;
@@ -126,49 +126,26 @@
     .logout-button:hover {
       background: #d32f2f;
     }
-
-    .side-buttons.volume-up,
-    .side-buttons.volume-down,
-    .side-buttons.power {
-      position: absolute;
-      background: #222;
-      border-radius: 6px;
-      box-shadow: inset 0 2px 4px #111, 0 1px 2px #444;
-    }
-
-    .side-buttons.volume-up {
-      width: 6px;
-      height: 50px;
-      top: 100px;
-      left: -14px;
-    }
-
-    .side-buttons.volume-down {
-      width: 6px;
-      height: 50px;
-      top: 160px;
-      left: -14px;
-    }
-
-    .side-buttons.power {
-      width: 6px;
-      height: 90px;
-      top: 140px;
-      right: -14px;
-    }
   </style>
 </head>
 <body>
   <div class="iphone">
-    <div class="side-buttons volume-up"></div>
-    <div class="side-buttons volume-down"></div>
-    <div class="side-buttons power"></div>
-
+    <div class="notch"></div>
     <div class="screen">
-      <div class="notch"></div>
-      <div class="clock" id="clock">00:00</div>
+      <div class="perfil-box">
+        <img id="fotoPerfil" src="https://via.placeholder.com/80" alt="Foto de Perfil">
+        <div id="bemvindo">Olá!</div>
+      </div>
 
       <div class="apps">
+        <a href="chat.html" class="app">
+          <div class="app-icon">💬</div>
+          <div>Chat Privado</div>
+        </a>
+        <a href="grupo.html" class="app">
+          <div class="app-icon">👥</div>
+          <div>Grupo</div>
+        </a>
         <a href="calendario.html" class="app">
           <div class="app-icon">📅</div>
           <div>Calendário</div>
@@ -185,10 +162,6 @@
           <div class="app-icon">👥</div>
           <div>Contatos</div>
         </a>
-        <a href="conversas.html" class="app">
-          <div class="app-icon">💬</div>
-          <div>Chat</div>
-        </a>
         <a href="tetris.html" class="app">
           <div class="app-icon">🕹️</div>
           <div>Tetris</div>
@@ -200,21 +173,18 @@
   </div>
 
   <script>
-    if (!localStorage.getItem("usuario")) {
-      window.location.href = "acesso.html";
-    }
+    const nome = localStorage.getItem("usuario");
+    const foto = localStorage.getItem("fotoPerfil");
 
-    function updateClock() {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, "0");
-      const minutes = String(now.getMinutes()).padStart(2, "0");
-      document.getElementById("clock").textContent = `${hours}:${minutes}`;
+    document.getElementById("bemvindo").textContent = `Olá, ${nome || "usuário"}!`;
+
+    if (foto) {
+      document.getElementById("fotoPerfil").src = foto;
     }
-    setInterval(updateClock, 1000);
-    updateClock();
 
     function logout() {
       localStorage.removeItem("usuario");
+      localStorage.removeItem("fotoPerfil");
       window.location.href = "acesso.html";
     }
   </script>

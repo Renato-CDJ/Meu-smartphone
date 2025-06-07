@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Chat</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat Privado</title>
   <script type="module">
     import { aplicarTemaAutomaticamente } from './tema.js';
     aplicarTemaAutomaticamente();
@@ -21,8 +21,6 @@
     }
 
     const destinoChat = localStorage.getItem("destinoChat");
-    console.log("DestinoChat:", destinoChat);
-
     const messagesEl = document.getElementById("messages");
     const form = document.getElementById("chat-form");
     const input = document.getElementById("message-input");
@@ -34,14 +32,10 @@
     if (!destinoChat) {
       nomeContatoEl.textContent = "Nenhum chat";
     } else {
-      if (destinoChat.startsWith("grupo:")) {
-        nomeContatoEl.textContent = destinoChat.split(":")[1];
-      } else {
-        const partes = destinoChat.split(":")[1].split("-");
-        outro = partes.find(p => p !== usuario);
-        nomeContatoEl.textContent = outro;
-        carregarFoto(outro);
-      }
+      const partes = destinoChat.split(":")[1].split("-");
+      outro = partes.find(p => p !== usuario);
+      nomeContatoEl.textContent = outro;
+      carregarFoto(outro);
     }
 
     async function carregarFoto(outro) {
@@ -285,9 +279,7 @@
           <div class="status">Online</div>
         </div>
       </div>
-
       <div class="messages" id="messages"></div>
-
       <form class="input-area" id="chat-form">
         <input type="text" id="message-input" placeholder="Escreva uma mensagem..." />
         <button type="submit">➤</button>
