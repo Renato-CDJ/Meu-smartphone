@@ -41,7 +41,7 @@
       pointer-events: none;
       z-index: 1;
     }
-    
+
     .screen {
       flex: 1;
       background: linear-gradient(180deg, #12131a, #1e2130);
@@ -50,6 +50,7 @@
       display: flex;
       flex-direction: column;
       padding: 60px 20px 20px;
+      position: relative;
     }
 
     .notch {
@@ -92,10 +93,36 @@
     }
 
     .preview img {
-      max-width: 100%;
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
       border-radius: 20px;
       box-shadow: 0 0 10px #000;
-      max-height: 150px;
+    }
+
+    #loading {
+      display: none;
+      color: #ccc;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .btn-voltar {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background: #6a5af9;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn-voltar:hover {
+      background: #5946e0;
     }
   </style>
 </head>
@@ -116,43 +143,45 @@
       <label for="fundo">Plano de Fundo:</label>
       <input type="file" accept="image/*" id="fundo" onchange="previsualizar()" />
 
+      <div id="loading">Carregando imagem...</div>
       <div class="preview" id="preview"></div>
+
+      <button class="btn-voltar" onclick="window.location.href='home.html'">Voltar</button>
     </div>
   </div>
 
-  <script>
-    function trocarTema() {
+  <script type="module">
+    import { aplicarTemaAutomaticamente } from './tema.js';
+
+    aplicarTemaAutomaticamente();
+
+    document.getElementById("tema").value = localStorage.getItem("temaSelecionado") || "default";
+
+    window.trocarTema = function () {
       const tema = document.getElementById("tema").value;
-      const screen = document.querySelector(".screen");
+      localStorage.setItem("temaSelecionado", tema);
+      aplicarTemaAutomaticamente();
+    };
 
-      switch (tema) {
-        case "azul":
-          screen.style.background = "linear-gradient(180deg, #0d1b2a, #1b263b)";
-          break;
-        case "verde":
-          screen.style.background = "linear-gradient(180deg, #0b3d2e, #14532d)";
-          break;
-        case "rosa":
-          screen.style.background = "linear-gradient(180deg, #42032C, #D36B9A)";
-          break;
-        default:
-          screen.style.background = "linear-gradient(180deg, #12131a, #1e2130)";
-      }
-    }
-
-    function previsualizar() {
+    window.previsualizar = function () {
       const file = document.getElementById("fundo").files[0];
-      if (file) {
+      const loading = document.getElementById("loading");
+      if (file && file.size < 2 * 1024 * 1024) {
         const reader = new FileReader();
+        loading.style.display = 'block';
         reader.onload = function (e) {
+          loading.style.display = 'none';
           const preview = document.getElementById("preview");
           preview.innerHTML = `<img src="${e.target.result}" alt="Plano de fundo">`;
-          document.querySelector(".screen").style.backgroundImage = `url(${e.target.result})`;
-          document.querySelector(".screen").style.backgroundSize = "cover";
+          const screen = document.querySelector(".screen");
+          screen.style.backgroundImage = `url(${e.target.result})`;
+          screen.style.backgroundSize = "cover";
         };
         reader.readAsDataURL(file);
+      } else {
+        alert("Imagem muito grande. Selecione um arquivo com menos de 2MB.");
       }
-    }
+    };
   </script>
 </body>
 </html>

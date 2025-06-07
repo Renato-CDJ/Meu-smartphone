@@ -1,14 +1,13 @@
-<!-- substitua TODO o conteúdo de conversas.html por este -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Conversas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script type="module">
     import { db } from './firebase.js';
     import {
-      collection, getDocs, query, orderBy, limit
+      collection, getDocs, query, orderBy, limit, getDoc, doc
     } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
     const usuario = localStorage.getItem("usuario");
@@ -26,7 +25,7 @@
       return [a, b].sort().join("-");
     }
 
-    function criarElementoConversa(tipo, nomeExibido, chatId, preview) {
+    function criarElementoConversa(tipo, nomeExibido, chatId, preview, foto) {
       const div = document.createElement("div");
       div.className = "conversa";
       div.onclick = () => {
@@ -36,7 +35,11 @@
 
       const avatar = document.createElement("div");
       avatar.className = "avatar";
-      avatar.textContent = nomeExibido.charAt(0).toUpperCase();
+      if (foto) {
+        avatar.innerHTML = `<img src="${foto}" alt="avatar">`;
+      } else {
+        avatar.textContent = nomeExibido.charAt(0).toUpperCase();
+      }
 
       const info = document.createElement("div");
       info.className = "info";
@@ -64,40 +67,30 @@
     async function carregarConversas(filtro = "") {
       listaEl.innerHTML = "";
 
-    async function mostrarContatos() {
-  const contatosSnap = await getDocs(contatosRef);
-  const nomes = contatosSnap.docs.map(doc => doc.data().nome);
-  if (nomes.length === 0) return alert("Você não tem contatos.");
-
-  const nome = prompt("Escolha um contato para conversar:\n\n" + nomes.join("\n"));
-  if (!nome) return;
-
-  const idChat = criarIdContato(usuario, nome);
-  localStorage.setItem("destinoChat", `contato:${idChat}`);
-  window.location.href = "chat.html";
-}
-
-
-      // Contatos
       const contatosSnap = await getDocs(contatosRef);
-      for (const doc of contatosSnap.docs) {
-        const nome = doc.data().nome;
+      for (const docContato of contatosSnap.docs) {
+        const nome = docContato.data().nome;
         if (filtro && !nome.toLowerCase().includes(filtro.toLowerCase())) continue;
         const idChat = criarIdContato(usuario, nome);
-const chatIdCompleto = `contato:${idChat}`;
-const preview = await buscarUltimaMensagem(chatIdCompleto);
-listaEl.appendChild(criarElementoConversa("contato", nome, idChat, preview)); // <- sem 'contato:' aqui
+        const chatId = `contato:${idChat}`;
+        const preview = await buscarUltimaMensagem(chatId);
 
+        let foto = null;
+        const contatoDoc = await getDoc(doc(db, "usuarios", nome));
+        if (contatoDoc.exists()) {
+          foto = contatoDoc.data().fotoPerfil || null;
+        }
+
+        listaEl.appendChild(criarElementoConversa("contato", nome, idChat, preview, foto));
       }
 
-      // Grupos
       const gruposSnap = await getDocs(gruposRef);
-      for (const doc of gruposSnap.docs) {
-        const nome = doc.data().nome;
+      for (const docGrupo of gruposSnap.docs) {
+        const nome = docGrupo.data().nome;
         if (filtro && !nome.toLowerCase().includes(filtro.toLowerCase())) continue;
         const chatId = `grupo:${nome}`;
         const preview = await buscarUltimaMensagem(chatId);
-        listaEl.appendChild(criarElementoConversa("grupo", nome, nome, preview));
+        listaEl.appendChild(criarElementoConversa("grupo", nome, nome, preview, null));
       }
     }
 
@@ -213,6 +206,14 @@ listaEl.appendChild(criarElementoConversa("contato", nome, idChat, preview)); //
       font-weight: bold;
       font-size: 18px;
       margin-right: 12px;
+      overflow: hidden;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
     }
 
     .info {
@@ -257,8 +258,7 @@ listaEl.appendChild(criarElementoConversa("contato", nome, idChat, preview)); //
         <input id="busca" type="text" placeholder="Buscar..." />
       </div>
       <div id="lista-conversas"></div>
-      <div class="botao-flutuante" title="Nova conversa" onclick="mostrarContatos()">✏️</div>
-
+      <div class="botao-flutuante" title="Nova conversa">✏️</div>
     </div>
   </div>
 </body>

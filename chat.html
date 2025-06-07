@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Chat</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script type="module">
+    import { aplicarTemaAutomaticamente } from './tema.js';
+    aplicarTemaAutomaticamente();
+
     import { db } from './firebase.js';
     import {
       collection, addDoc, serverTimestamp, query, orderBy, onSnapshot,
-      getDoc, updateDoc, doc
+      getDoc, doc
     } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
     const usuario = localStorage.getItem("usuario");
@@ -18,25 +21,15 @@
     }
 
     const destinoChat = localStorage.getItem("destinoChat");
+    console.log("DestinoChat:", destinoChat);
+
     const messagesEl = document.getElementById("messages");
     const form = document.getElementById("chat-form");
     const input = document.getElementById("message-input");
     const nomeContatoEl = document.getElementById("nomeContato");
-const avatarContatoEl = document.getElementById("avatarContato");
+    const avatarContatoEl = document.getElementById("avatarContato");
 
-import { getDoc, doc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
-
-async function carregarFoto() {
-  const contatoDoc = await getDoc(doc(db, "usuarios", outro));
-  if (contatoDoc.exists()) {
-    const data = contatoDoc.data();
-    if (data.fotoPerfil) {
-      avatarContatoEl.src = data.fotoPerfil;
-    }
-  }
-}
-
-carregarFoto();
+    let outro = "";
 
     if (!destinoChat) {
       nomeContatoEl.textContent = "Nenhum chat";
@@ -45,8 +38,19 @@ carregarFoto();
         nomeContatoEl.textContent = destinoChat.split(":")[1];
       } else {
         const partes = destinoChat.split(":")[1].split("-");
-        const outro = partes.find(p => p !== usuario);
+        outro = partes.find(p => p !== usuario);
         nomeContatoEl.textContent = outro;
+        carregarFoto(outro);
+      }
+    }
+
+    async function carregarFoto(outro) {
+      const contatoDoc = await getDoc(doc(db, "usuarios", outro));
+      if (contatoDoc.exists()) {
+        const data = contatoDoc.data();
+        if (data.fotoPerfil) {
+          avatarContatoEl.src = data.fotoPerfil;
+        }
       }
     }
 
@@ -130,15 +134,14 @@ carregarFoto();
     }
 
     .screen {
-  flex: 1;
-  background: linear-gradient(180deg, #12131a, #1e2130); /* fundo padrão escuro */
-  border-radius: 48px;
-  box-shadow: inset 0 0 40px #0009;
-  display: flex;
-  flex-direction: column;
-  padding-top: 60px;
-}
-
+      flex: 1;
+      background: linear-gradient(180deg, #12131a, #1e2130);
+      border-radius: 48px;
+      box-shadow: inset 0 0 40px #0009;
+      display: flex;
+      flex-direction: column;
+      padding-top: 60px;
+    }
 
     .notch {
       position: absolute;
@@ -174,7 +177,7 @@ carregarFoto();
     .chat-header .info .nome {
       font-weight: bold;
       font-size: 16px;
-      color: #000;
+      color: #fff;
     }
 
     .chat-header .info .status {
@@ -266,7 +269,7 @@ carregarFoto();
       border: none;
       font-size: 20px;
       cursor: pointer;
-      color: #333;
+      color: #fff;
     }
   </style>
 </head>
@@ -277,7 +280,6 @@ carregarFoto();
       <div class="chat-header">
         <button class="voltar" onclick="history.back()">←</button>
         <img id="avatarContato" src="https://via.placeholder.com/40" alt="avatar">
-
         <div class="info">
           <div class="nome" id="nomeContato">Carregando...</div>
           <div class="status">Online</div>
